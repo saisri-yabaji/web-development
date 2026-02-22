@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Universal ATS Resume Builder</title>
+    <style>
+        body { font-family: Arial; background:#f2f2f2; padding:20px; }
+        input, textarea, select { width:100%; margin-bottom:10px; padding:8px; }
+        button { padding:10px; background:green; color:white; border:none; cursor:pointer; margin-right:10px;}
+        .box { background:white; padding:15px; margin-bottom:20px; border-radius:8px; }
+        #resumePreview { white-space: pre-line; background:#fff; padding:15px; border-radius:8px; }
+    </style>
+</head>
+
+<body>
+
+<h1>Universal ATS Resume Builder</h1>
+
+<div class="box">
+<h2>Select Job Role</h2>
+
+<select id="jobRole" onchange="showJD()">
+    <option value="">-- Select Role --</option>
+    <option value="java">Java Developer</option>
+    <option value="web">Web Developer</option>
+    <option value="python">Python Developer</option>
+    <option value="testing">Software Tester</option>
+</select>
+
+<p id="jdText"></p>
+</div>
+
+<div class="box">
+<h2>Enter Your Resume Details</h2>
+
+<input type="text" id="name" placeholder="Full Name">
+
+<input type="text" id="education" placeholder="Education">
+
+<textarea id="coreskills" placeholder="Core Skills (comma separated)"></textarea>
+
+<textarea id="tools" placeholder="Tools & Technologies"></textarea>
+
+<textarea id="projects" placeholder="Projects"></textarea>
+
+<textarea id="softskills" placeholder="Soft Skills"></textarea>
+
+<button onclick="calculateATS()">Calculate ATS Score</button>
+<button onclick="generateResume()">Generate ATS Resume</button>
+
+<h2 id="result"></h2>
+</div>
+
+<div class="box">
+<h2>Generated ATS Resume</h2>
+<div id="resumePreview"></div>
+</div>
+
+<script>
+
+let jobSkills = {
+    java: ["java","oop","sql","html","css","javascript","git","dsa"],
+    web: ["html","css","javascript","react","bootstrap","git","responsive","api"],
+    python: ["python","sql","pandas","numpy","html","css","git","flask"],
+    testing: ["manual testing","selenium","test cases","jira","sql","bug tracking","api testing","automation"]
+};
+
+function showJD() {
+    let role = document.getElementById("jobRole").value;
+    if(role === "") return;
+
+    document.getElementById("jdText").innerHTML =
+        "<b>Required Core Skills:</b> " + jobSkills[role].join(", ");
+}
+
+function calculateATS() {
+
+    let role = document.getElementById("jobRole").value;
+
+    if(role === "") {
+        alert("Please select job role");
+        return;
+    }
+
+    let required = jobSkills[role];
+
+    let core = document.getElementById("coreskills").value.toLowerCase().split(",");
+    core = core.map(skill => skill.trim());
+
+    let matched = 0;
+
+    required.forEach(skill => {
+        if(core.includes(skill)) matched++;
+    });
+
+    let coreScore = (matched / required.length) * 40;
+
+    let projects = document.getElementById("projects").value;
+    let education = document.getElementById("education").value;
+    let tools = document.getElementById("tools").value;
+    let soft = document.getElementById("softskills").value;
+    let name = document.getElementById("name").value;
+
+    let projectScore = projects.length > 5 ? 15 : 0;
+    let eduScore = education.length > 2 ? 10 : 0;
+    let toolScore = tools.length > 5 ? 15 : 0;
+    let softScore = soft.length > 5 ? 10 : 0;
+    let formatScore = name ? 10 : 0;
+
+    let total = coreScore + projectScore + eduScore + toolScore + softScore + formatScore;
+
+    document.getElementById("result").innerHTML =
+        "Core Skills Matched: " + matched + " / " + required.length + "<br>" +
+        "ATS Score: <b>" + total.toFixed(2) + " / 100</b>";
+}
+
+function generateResume() {
+
+    let name = document.getElementById("name").value;
+    let education = document.getElementById("education").value;
+    let core = document.getElementById("coreskills").value;
+    let tools = document.getElementById("tools").value;
+    let projects = document.getElementById("projects").value;
+    let soft = document.getElementById("softskills").value;
+    let role = document.getElementById("jobRole").value;
+
+    if(name === "" || role === "") {
+        alert("Enter name and select job role");
+        return;
+    }
+
+    let resume =
+name.toUpperCase() + "\n" +
+"Applying for: " + role.toUpperCase() + "\n\n" +
+
+"EDUCATION\n" + education + "\n\n" +
+
+"CORE SKILLS\n" + core + "\n\n" +
+
+"TOOLS & TECHNOLOGIES\n" + tools + "\n\n" +
+
+"PROJECTS\n" + projects + "\n\n" +
+
+"SOFT SKILLS\n" + soft;
+
+    document.getElementById("resumePreview").innerText = resume;
+}
+
+</script>
+
+</body>
+</html>
